@@ -1,6 +1,3 @@
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-
 # Check for exactly one argument
 if [ $# -ne 1 ]; then
   echo "Usage: $0 <input.typ>"

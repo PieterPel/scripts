@@ -51,12 +51,17 @@ if [ $n_pages -eq 0 ]; then
    exit 1
 fi
 
-for ((i=0; i<n_pages; i++))
-do
-   magick convert -density $density $colorspace -resize "x${resolution}" "$1[$i]" "$tempname"/slide-$i.png
-   returncode=$?
-    if [ $returncode -ne 0 ]; then break; fi
-done
+
+num_threads=$(nproc)  # WARNING: does not work on macOS
+# for ((i=0; i<n_pages; i++))
+# do
+#    magick convert -density $density $colorspace -resize "x${resolution}" "$1[$i]" "$tempname"/slide-$i.png
+#    returncode=$?
+#     if [ $returncode -ne 0 ]; then break; fi
+# done
+
+# WARNING: the `magick convert` command is deprecated for `magick`
+seq 0 $((n_pages - 1)) | parallel -j "$num_threads" 'magick convert -density '"$density"' '"$colorspace"' -resize x'"$resolution"' "'"$1"'[{}]" "'"$tempname"'/slide-{}.png"'
 
 if [ "$pagesPerSlide" -gt 1 ]; then
     echo "🧩 Combining $pagesPerSlide pages per slide..."

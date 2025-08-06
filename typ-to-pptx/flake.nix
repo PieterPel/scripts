@@ -17,6 +17,7 @@
         buildInputs = with pkgs; [
           imagemagick
           ghostscript_headless
+          parallel
           zip
           typst
         ];
