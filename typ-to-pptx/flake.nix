@@ -1,5 +1,5 @@
 {
-  description = "Flake to make a script to convert a typst file to pptx";
+  description = "Flake to make a script to convert a typst or pdf file to pptx";
 
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
@@ -13,7 +13,7 @@
       system:
       let
         pkgs = import nixpkgs { inherit system; };
-        name = "typst-to-pptx";
+        name = "typ-to-pptx";
         buildInputs = with pkgs; [
           imagemagick
           ghostscript_headless
@@ -38,7 +38,7 @@
             '';
       in
       rec {
-        defaultPackage = packages.my-script;
+        defaultPackage = packages.${name};
         packages.${name} = pkgs.symlinkJoin {
           inherit name;
           paths = [ script ] ++ buildInputs;

@@ -9,7 +9,7 @@ By default shows two pages per slide.
 1.  **Install Nix.**
 2.  **Run the script:**
     ```bash
-    nix run github:pelpieter/scripts/typ-to-pptx -- <input.typ|input.pdf>
+    nix run github:PieterPel/scripts?dir=typ-to-pptx -- <input.typ|input.pdf>
     ```
 
     This will create a `.pptx` file in the same directory as the input file.
