@@ -31,7 +31,7 @@ fi
 # Convert PDF to PowerPoint
 echo "🎞️ Converting PDF to PowerPoint..."
 script_dir="$(dirname "$(realpath "$0")")"
-if "$script_dir/pdf2pptx/pdf2pptx.sh" "$pdf_file"; then
+if "$script_dir/pdf2pptx/pdf2pptx.sh" "$pdf_file" "widescreen" "2"; then
   pptx_file="${pdf_file}.pptx"
   echo "✅ PPTX created: $pptx_file"
 else

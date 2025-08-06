@@ -2,27 +2,31 @@
 # Alireza Shafaei - shafaei@cs.ubc.ca - Jan 2016
 # Adjusted by: Pieter Pel - pelpieter@gmail.com - Aug 2025
 
-resolution=1024
-density=300
+resolution=1920
+density=600
 colorspace="-colorspace sRGB -background white -alpha remove"
+
+# Default options
 makeLandscape=false
 makeWidescreen=false
+pagesPerSlide=1
 
 if [ $# -eq 0 ]; then
     echo "No arguments supplied!"
-    echo "Usage: ./pdf2pptx.sh file.pdf"
-    echo "			Generates file.pdf.pptx in A4 portrait format (by default)"
-    echo "       ./pdf2pptx.sh file.pdf landscape"
-    echo "			Generates file.pdf.pptx in A4 landscape format"
+    echo "Usage: ./pdf2pptx.sh file.pdf [landscape|widescreen] [pagesPerSlide]"
     exit 1
 fi
 
-if [ $# -eq 2 ]; then
+if [ $# -ge 2 ]; then
 	if [ "$2" == "landscape" ]; then
 		makeLandscape=true
     elif [ "$2" == "widescreen" ]; then
         makeWidescreen=true
 	fi
+fi
+
+if [ $# -eq 3 ]; then
+    pagesPerSlide="$3"
 fi
 
 echo "Doing $1"
@@ -47,13 +51,42 @@ if [ $n_pages -eq 0 ]; then
    exit 1
 fi
 
-# for ((i=0; i<n_pages; i++))
-for ((i=0; i<3; i++))
+for ((i=0; i<n_pages; i++))
 do
    magick convert -density $density $colorspace -resize "x${resolution}" "$1[$i]" "$tempname"/slide-$i.png
    returncode=$?
     if [ $returncode -ne 0 ]; then break; fi
 done
+
+if [ "$pagesPerSlide" -gt 1 ]; then
+    echo "🧩 Combining $pagesPerSlide pages per slide..."
+
+    mkdir "$tempname"/combined
+    total=$(ls "$tempname"/slide-*.png | wc -l)
+    slideIndex=0
+
+    for ((i=0; i<total; i+=pagesPerSlide)); do
+        inputs=()
+        for ((j=0; j<pagesPerSlide; j++)); do
+            page="$tempname/slide-$((i+j)).png"
+            if [ -f "$page" ]; then
+                inputs+=("$page")
+            else
+                # Add blank white image if missing
+                inputs+=("xc:white")
+            fi
+        done
+
+        # Combine horizontally
+        magick "${inputs[@]}" +append "$tempname/combined/slide-$slideIndex.png"
+        slideIndex=$((slideIndex+1))
+    done
+
+    # Replace original images with combined ones
+    rm "$tempname"/slide-*.png
+    mv "$tempname"/combined/* "$tempname"/
+    rmdir "$tempname"/combined
+fi
 
 for img in "$tempname"/slide-*.png; do
     if $makeLandscape; then
